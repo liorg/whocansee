@@ -16,7 +16,6 @@ namespace WhoCanSeeRecords
         const string Query = "Query";
         public void Execute(IServiceProvider serviceProvider)
         {
-
             if (serviceProvider == null)
                 throw new ArgumentNullException("serviceProvider");
             ITracingService tracingService = (ITracingService)serviceProvider.GetService(typeof(ITracingService));
@@ -29,19 +28,24 @@ namespace WhoCanSeeRecords
             if (messageName.Equals("RetrieveMultiple", StringComparison.InvariantCultureIgnoreCase))
             {
                 if (context.Depth <= 1 && stage == (int)eMessageStage.PreEvent)
-                    GenerateQuery(context, service);
+                    GenerateQuery(context, service); // must register as grant user caller!!
 
                 else if (context.Depth <= 1 && stage == (int)eMessageStage.PostEvent)
-                    SecretSecureActivityPointer(context, service);
+                    SecretSecureActivityPointer(context, service); //default caller user
             }
 
             if (messageName.Equals("Retrieve", StringComparison.InvariantCultureIgnoreCase))
             {
                 if (context.Depth <= 1 && stage == (int)eMessageStage.PostEvent)
-                    CanSeeCurrentRecord(context, service);
+                    CanSeeCurrentRecord(context, service);//default caller user 
+                    //it's must be because in a Create event we set a caller to be grant user 
+                    //and the caller on create event must get parent entiity that's has a secure field
+                    //and after in a pipeline on retrive event he can get the record
 
                 else if (context.Depth <= 1 && stage == (int)eMessageStage.PreEvent)
-                    AddSecureFieldIfNotExists(context, service);
+                    AddSecureFieldIfNotExists(context, service);// prefer register as grant user caller!!
+                //(it's preffer to be a grant user becuase he get cache users from team or other resource data)
+
             }
         }
 
@@ -52,7 +56,6 @@ namespace WhoCanSeeRecords
                 return;
 
             EntityCollection results = (EntityCollection)context.OutputParameters["BusinessEntityCollection"];
-
             if (results != null && results.Entities != null && results.Entities.Count > 0)
             {
                 if (results.EntityName != TableRelationation.ACTIVITYPOINTER) return;

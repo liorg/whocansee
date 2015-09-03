@@ -49,6 +49,7 @@
     <Compile Include="ConfigCaching.cs" />
     <Compile Include="General.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SetSecureFieldSecure.cs" />
     <Compile Include="TableRelationation.cs" />
     <Compile Include="UsersTeam.cs" />
     <Compile Include="WhoCanSee.cs" />
