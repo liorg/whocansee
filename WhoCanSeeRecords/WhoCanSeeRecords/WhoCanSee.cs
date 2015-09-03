@@ -14,6 +14,7 @@ namespace WhoCanSeeRecords
     {
 
         const string Query = "Query";
+
         public void Execute(IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
@@ -38,9 +39,9 @@ namespace WhoCanSeeRecords
             {
                 if (context.Depth <= 1 && stage == (int)eMessageStage.PostEvent)
                     CanSeeCurrentRecord(context, service);//default caller user 
-                    //it's must be because in a Create event we set a caller to be grant user 
-                    //and the caller on create event must get parent entiity that's has a secure field
-                    //and after in a pipeline on retrive event he can get the record
+                //it's must be because in a Create event we set a caller to be grant user 
+                //and the caller on create event must get parent entiity that's has a secure field
+                //and after in a pipeline on retrive event he can get the record
 
                 else if (context.Depth <= 1 && stage == (int)eMessageStage.PreEvent)
                     AddSecureFieldIfNotExists(context, service);// prefer register as grant user caller!!
