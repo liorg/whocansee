@@ -189,9 +189,19 @@ namespace WhoCanSeeRecords
             ConfigCaching configCaching = GetCacheConfig(service);
             UsersTeam userteam = UsersTeam.GetSinglton(service, configCaching);
 
+            //if (userteam.UsersPremission.Contains(context.InitiatingUserId))
+            //    return;
             if (userteam.UsersPremission.Contains(context.InitiatingUserId))
-                return;
-
+            {
+                if (queryExpression.EntityName.ToLower() == TableRelationation.INCIDENT)
+                {
+                    var filter = queryExpression.Criteria;
+                    RemoveSecureFilter(filter);
+                    return;
+                }
+                else
+                    return;
+            }
             if (queryExpression.EntityName == TableRelationation.ACTIVITYPOINTER)
             {
                 AppendAllActivities(queryExpression, tableRelation);
@@ -315,6 +325,35 @@ namespace WhoCanSeeRecords
                     }
                 }
             }
+        }
+        
+        /// <summary>
+        /// retrivemultiple event not fire on choose =>"include: related "regarding" records" view  in account
+        /// but in view when choosen "include:this record only" the retrivemultiple event is fired
+        /// so we set is_secure = false on filter  (incident associated view ) and it's customize both senario.
+        /// so what it's will be is when choosen "include: related "regarding" records" it's not going here (this event) and retrive only new_secure=false  from the customization
+        /// but when  choosen "include:this record only" it's goes here (retrivemultiple event) and test
+        /// if it's admin users it's remove this condition new_secure and the end user can see everything
+        /// otherwise don't do nothing and the filter will be from the customization mean new_secure=false
+        /// </summary>
+        /// <param name="filter"></param>
+        void RemoveSecureFilter(FilterExpression filter)
+        {
+            if (filter == null)
+                filter = new FilterExpression(LogicalOperator.And);
+       
+            List<ConditionExpression> condtionsRemove = new List<ConditionExpression>();
+            foreach (var condition in filter.Conditions)
+            {
+                if (condition.AttributeName == General.SecureField)
+                {
+                    condtionsRemove.Add(condition);
+                    break;
+                }
+            }
+
+            foreach (var condtionRemove in condtionsRemove)
+              filter.Conditions.Remove(condtionRemove);
         }
 
         ConfigCaching GetCacheConfig(IOrganizationService service)

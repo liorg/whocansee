@@ -8,6 +8,7 @@ namespace WhoCanSeeRecords
 {
     public class TableRelationation
     {
+        public const string INCIDENT = "incident";
         public const string ACTIVITYPOINTER = "activitypointer";
         public const string ACTIVITYID = "activityid";
         static TableRelationation _tableRelationation = null;
@@ -79,6 +80,8 @@ namespace WhoCanSeeRecords
             }
             return _tableRelationation;
         }
+
+
     }
 }
 
